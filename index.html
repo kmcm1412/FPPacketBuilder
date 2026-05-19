@@ -62,25 +62,6 @@ h1 {
   font-style: italic;
 }
 h1 .amp { font-style: italic; color: var(--red); }
-.title-row {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-.byline {
-  font-family: 'Fraunces', serif;
-  font-style: italic;
-  font-weight: 500;
-  font-size: 14px;
-  color: var(--grey);
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-}
-.byline::before {
-  content: "—  ";
-  color: var(--grey-light);
-}
 .tagline {
   font-family: 'Fraunces', serif;
   font-style: italic;
@@ -693,12 +674,9 @@ h1 .amp { font-style: italic; color: var(--red); }
   <div class="masthead-top">
     <span>Vol. III &nbsp;·&nbsp; Benchmark Assessment System</span>
     <span class="ed">★ Third Edition ★</span>
-    <span>Mr. McMahon · JCMS</span>
+    <span>For teachers</span>
   </div>
-  <div class="title-row">
-    <h1>The F<span class="amp">&</span>P Packet Builder</h1>
-    <span class="byline">made by Kyle McMahon</span>
-  </div>
+  <h1>The F<span class="amp">&</span>P Packet Builder</h1>
   <p class="tagline">Select the levels you need, set the quantities, optionally name students — get a printable PDF packet with dividers, ready for the teacher's lounge printer.</p>
 </div>
 
@@ -729,7 +707,7 @@ h1 .amp { font-style: italic; color: var(--red); }
   <div class="levels" id="levels"></div>
 
   <div class="footer">
-    Forms hosted by <em>eps.openclass.com</em> (official Pearson/Heinemann 3rd Edition portal). © 2017, 2011, 2008 Fountas & Pinnell.
+    Forms hosted by <em>eps.openclass.com</em> (official Pearson/Heinemann 3rd Edition portal). © 2017, 2011, 2008 Fountas & Pinnell. &nbsp;·&nbsp; Built by K. McMahon.
   </div>
 </div>
 
@@ -1185,7 +1163,6 @@ async function drawDivider(pdfDoc, opts) {
   // Footer
   page.drawText('Fountas & Pinnell Benchmark Assessment — Third Edition (© 2017, 2011, 2008)',
                 { x: 54, y: 36, size: 9, font: fontItalic, color: lightGrey });
-  page.drawText('Mr. McMahon — JCMS', { x: 54, y: 22, size: 9, font: fontItalic, color: lightGrey });
 }
 
 async function drawCover(pdfDoc, totalSets, totalForms, orgMode) {
@@ -1218,7 +1195,6 @@ async function drawCover(pdfDoc, totalSets, totalForms, orgMode) {
 
   page.drawText('Fountas & Pinnell Benchmark Assessment — Third Edition (© 2017, 2011, 2008)',
                 { x: 54, y: 36, size: 9, font: fontItalic, color: lightGrey });
-  page.drawText('Mr. McMahon — JCMS', { x: 54, y: 22, size: 9, font: fontItalic, color: lightGrey });
 }
 
 async function drawContents(pdfDoc, sections, orgMode) {
@@ -1360,7 +1336,6 @@ async function drawStudentTitle(pdfDoc, name, copies) {
 
   page.drawText('Fountas & Pinnell Benchmark Assessment — Third Edition (© 2017, 2011, 2008)',
                 { x: 54, y: 36, size: 9, font: fontItalic, color: lightGrey });
-  page.drawText('Mr. McMahon — JCMS', { x: 54, y: 22, size: 9, font: fontItalic, color: lightGrey });
 }
 
 // Title page that introduces the "unassigned copies" group.
@@ -1388,7 +1363,6 @@ async function drawUnnamedTitle(pdfDoc, count) {
 
   page.drawText('Fountas & Pinnell Benchmark Assessment — Third Edition (© 2017, 2011, 2008)',
                 { x: 54, y: 36, size: 9, font: fontItalic, color: lightGrey });
-  page.drawText('Mr. McMahon — JCMS', { x: 54, y: 22, size: 9, font: fontItalic, color: lightGrey });
 }
 
 let isBuilding = false;
