@@ -1,0 +1,2532 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>F&P Packet Builder — Third Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700;9..144,900&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<style>
+:root {
+  --ink: #1a1d1f;
+  --paper: #fbf8f3;
+  --paper-2: #f3ede2;
+  --navy: #1F4E79;
+  --navy-deep: #133452;
+  --red: #b8341c;
+  --gold: #c89740;
+  --grey: #6b6b6b;
+  --grey-light: #b8b4ab;
+  --border: #d4cebf;
+  --border-strong: #5a5854;
+  --shade-1: #ffffff;
+  --shade-2: #f3ede2;
+  --bas2-tint: #fdf3e3;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', system-ui, sans-serif; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+body { padding-bottom: 200px; }
+
+/* ---------- HEADER ---------- */
+.masthead {
+  border-bottom: 3px solid var(--ink);
+  padding: 32px 40px 24px;
+  background: var(--paper);
+  position: relative;
+}
+.masthead::before {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: -8px;
+  height: 2px; background: var(--ink);
+}
+.masthead-top {
+  display: flex; justify-content: space-between; align-items: baseline;
+  border-bottom: 1px solid var(--border-strong);
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--grey);
+}
+.masthead-top .ed { color: var(--red); font-weight: 700; }
+h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: clamp(38px, 6vw, 64px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  font-style: italic;
+}
+h1 .amp { font-style: italic; color: var(--red); }
+.tagline {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--grey);
+  margin-top: 12px;
+  max-width: 720px;
+}
+
+/* ---------- LAYOUT ---------- */
+.container { padding: 0 40px; max-width: 1280px; margin: 0 auto; }
+.section-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: -0.01em;
+  margin: 40px 0 8px;
+  display: flex; align-items: baseline; gap: 12px;
+}
+.section-title .num {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--red);
+  font-weight: 700;
+}
+.section-sub {
+  font-size: 14px; color: var(--grey); margin-bottom: 20px;
+  font-family: 'Fraunces', serif; font-style: italic;
+}
+
+/* ---------- LEVEL TABLE ---------- */
+.levels {
+  border: 2px solid var(--ink);
+  background: var(--shade-1);
+}
+.level-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 1fr 130px;
+  border-bottom: 1px solid var(--border);
+  align-items: stretch;
+  transition: background 120ms;
+}
+.level-row:last-child { border-bottom: none; }
+.level-row.active { background: #fff8e7; }
+.level-row.bas2 { background: var(--bas2-tint); }
+.level-row.bas2.active { background: #fde8c2; }
+.level-row > div {
+  padding: 14px 16px;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; justify-content: center;
+}
+.level-row > div:last-child { border-right: none; }
+
+.cell-level {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 32px;
+  text-align: center;
+  align-items: center !important;
+}
+.level-row.bas2 .cell-level { background: var(--navy-deep); }
+
+.book-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 16px;
+  font-style: italic;
+}
+.book-genre {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--red);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.book-toggle {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--grey);
+  cursor: pointer;
+  user-select: none;
+}
+.book-toggle input { cursor: pointer; }
+
+.cell-qty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: var(--paper-2);
+  gap: 4px;
+}
+.qty-label {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--grey);
+  font-weight: 700;
+}
+.qty-input {
+  display: flex; align-items: center; gap: 0;
+  border: 2px solid var(--ink);
+  background: var(--shade-1);
+  border-radius: 0;
+}
+.qty-btn {
+  width: 28px; height: 32px;
+  background: var(--shade-1);
+  border: none;
+  cursor: pointer;
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  transition: background 100ms;
+}
+.qty-btn:hover { background: var(--ink); color: var(--paper); }
+.qty-btn:active { background: var(--red); color: var(--paper); }
+.qty-display {
+  width: 36px; height: 32px;
+  text-align: center;
+  border: none;
+  border-left: 2px solid var(--ink);
+  border-right: 2px solid var(--ink);
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 18px;
+  background: var(--paper);
+  -moz-appearance: textfield;
+}
+.qty-display::-webkit-outer-spin-button,
+.qty-display::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* ---------- STUDENTS EXPANSION ---------- */
+.students-row {
+  display: none;
+  grid-column: 1 / -1;
+  background: var(--paper-2);
+  border-top: 1px dashed var(--border-strong);
+  padding: 16px 20px;
+}
+.level-row.has-students .students-row { display: block; }
+.students-header {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--grey);
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: flex; justify-content: space-between;
+}
+.students-header span.hint { font-style: italic; text-transform: none; letter-spacing: 0.02em; color: var(--grey-light); }
+.students-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 10px;
+}
+.student-input-wrap {
+  display: flex; align-items: stretch; gap: 0;
+  background: var(--shade-1);
+  border: 1px solid var(--border-strong);
+  padding: 0;
+  overflow: hidden;
+}
+.student-num {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 16px;
+  color: var(--paper);
+  background: var(--ink);
+  min-width: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.student-field {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.student-field.note-field {
+  flex: 0 0 130px;
+  border-left: 2px dashed var(--border-strong);
+  background: var(--paper-2);
+}
+.field-label {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--grey);
+  padding: 4px 10px 0;
+  user-select: none;
+}
+.student-field.note-field .field-label {
+  color: var(--gold);
+}
+.student-input {
+  border: none;
+  background: transparent;
+  padding: 2px 10px 6px;
+  width: 100%;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  color: var(--ink);
+}
+.student-input::placeholder {
+  color: var(--grey-light);
+  font-style: italic;
+  font-weight: 400;
+}
+.student-note {
+  border: none;
+  background: transparent;
+  padding: 2px 10px 6px;
+  width: 100%;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--grey);
+  outline: none;
+}
+.student-note:focus { color: var(--ink); }
+.student-note::placeholder { color: var(--grey-light); font-style: italic; }
+.student-input-wrap:focus-within { border-color: var(--red); }
+
+/* ---------- SUMMARY BAR (bottom) ---------- */
+.bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 16px 40px;
+  display: flex; align-items: center; gap: 24px;
+  border-top: 3px solid var(--red);
+  z-index: 100;
+}
+.summary {
+  display: flex; gap: 28px; align-items: baseline;
+  flex: 1;
+}
+.summary-stat .num {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: 28px;
+  font-style: italic;
+  color: var(--paper);
+  display: block;
+  line-height: 1;
+}
+.summary-stat .label {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--grey-light);
+  font-weight: 700;
+}
+.actions { display: flex; gap: 10px; }
+.btn {
+  padding: 14px 24px;
+  font-family: 'Inter Tight', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 2px solid var(--paper);
+  background: transparent;
+  color: var(--paper);
+  cursor: pointer;
+  transition: all 120ms;
+}
+.btn:hover { background: var(--paper); color: var(--ink); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn.primary {
+  background: var(--red);
+  border-color: var(--red);
+  color: var(--paper);
+}
+.btn.primary:hover { background: #d44525; border-color: #d44525; }
+.btn.primary:disabled { background: #6b6b6b; border-color: #6b6b6b; }
+
+/* ---------- MODAL / STATUS ---------- */
+.status-overlay {
+  position: fixed; inset: 0;
+  background: rgba(26, 29, 31, 0.85);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: none; align-items: center; justify-content: center;
+}
+.status-overlay.show { display: flex; }
+.status-card {
+  background: var(--paper);
+  padding: 40px 48px;
+  border: 3px solid var(--ink);
+  max-width: 500px;
+  text-align: center;
+}
+.status-card h2 {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+.status-card p { color: var(--grey); margin-bottom: 20px; }
+.progress-bar {
+  height: 4px; background: var(--paper-2); border: 1px solid var(--ink);
+  overflow: hidden;
+  margin: 20px 0;
+}
+.progress-fill {
+  height: 100%; background: var(--red);
+  width: 0%; transition: width 200ms;
+}
+.status-detail { font-family: 'Inter Tight'; font-size: 12px; color: var(--grey); letter-spacing: 0.04em; }
+
+/* ---------- ORG CHOICE MODAL ---------- */
+.org-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(26, 29, 31, 0.85);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: none; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.org-modal-overlay.show { display: flex; }
+.org-modal {
+  background: var(--paper);
+  padding: 36px 40px;
+  border: 3px solid var(--ink);
+  max-width: 580px;
+  width: 100%;
+}
+.org-modal h2 {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 32px;
+  color: var(--navy);
+  margin-bottom: 8px;
+  line-height: 1;
+}
+.org-modal .modal-label {
+  font-family: 'Inter Tight';
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 10px;
+}
+.org-modal p.modal-desc {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--grey);
+  margin-bottom: 24px;
+}
+.org-choice-list {
+  display: flex; flex-direction: column; gap: 12px;
+  margin-bottom: 24px;
+}
+.org-choice {
+  border: 2px solid var(--ink);
+  background: var(--shade-1);
+  padding: 18px 22px;
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+  text-align: left;
+  font-family: 'Inter Tight';
+  display: flex; flex-direction: column; gap: 6px;
+  width: 100%;
+}
+.org-choice:hover { background: var(--paper-2); }
+.org-choice:active, .org-choice.selecting {
+  background: var(--ink);
+  color: var(--paper);
+}
+.org-choice-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.org-choice-sub {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--grey);
+  font-weight: 400;
+}
+.org-choice:active .org-choice-sub,
+.org-choice.selecting .org-choice-sub {
+  color: var(--grey-light);
+}
+.org-modal-footer {
+  display: flex; justify-content: flex-end; gap: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+.modal-btn {
+  padding: 10px 18px;
+  font-family: 'Inter Tight';
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 2px solid var(--grey);
+  color: var(--grey);
+  cursor: pointer;
+}
+.modal-btn:hover { border-color: var(--ink); color: var(--ink); }
+.modal-btn.primary {
+  background: var(--red);
+  border-color: var(--red);
+  color: var(--paper);
+}
+.modal-btn.primary:hover { background: #d44525; border-color: #d44525; color: var(--paper); }
+
+/* ---------- IMPORT MODAL ---------- */
+.import-modal {
+  background: var(--paper);
+  padding: 32px 36px;
+  border: 3px solid var(--ink);
+  max-width: 640px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.import-modal h2 {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 28px;
+  color: var(--navy);
+  margin-bottom: 8px;
+  line-height: 1;
+}
+.import-modal .modal-label {
+  font-family: 'Inter Tight';
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 10px;
+}
+.import-modal .modal-desc {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--grey);
+  margin-bottom: 16px;
+}
+.import-format {
+  background: var(--paper-2);
+  border-left: 3px solid var(--navy);
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 12px;
+  color: var(--ink);
+  margin-bottom: 16px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+.import-textarea {
+  width: 100%;
+  min-height: 180px;
+  padding: 12px 14px;
+  border: 2px solid var(--ink);
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 13px;
+  background: var(--shade-1);
+  color: var(--ink);
+  resize: vertical;
+  outline: none;
+  line-height: 1.5;
+}
+.import-textarea:focus { border-color: var(--red); }
+.import-preview {
+  margin: 16px 0;
+  padding: 14px;
+  background: var(--paper-2);
+  border: 1px solid var(--border-strong);
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 12px;
+  font-family: 'Inter Tight';
+}
+.import-preview .preview-row {
+  display: flex; justify-content: space-between; padding: 4px 0;
+  border-bottom: 1px dashed var(--border);
+}
+.import-preview .preview-row:last-child { border-bottom: none; }
+.import-preview .preview-row.error { color: var(--red); }
+.import-preview .preview-row.ok { color: var(--ink); }
+.import-preview .badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 0;
+}
+.import-preview .badge.ok { background: var(--navy); color: var(--paper); }
+.import-preview .badge.error { background: var(--red); color: var(--paper); }
+.import-preview .badge.skipped { background: var(--grey); color: var(--paper); }
+.import-preview .preview-row.skipped { color: var(--grey); }
+.import-modal-footer {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  margin-top: 8px;
+}
+.import-mode-toggle {
+  display: flex; gap: 12px; margin-bottom: 14px;
+  font-size: 12px; color: var(--grey);
+}
+.import-mode-toggle label {
+  display: flex; align-items: center; gap: 6px; cursor: pointer;
+}
+
+.import-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  background: var(--paper-2);
+  border-left: 3px solid var(--gold);
+}
+.option-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--ink);
+  cursor: pointer;
+  line-height: 1.4;
+}
+.option-toggle input[type="checkbox"] {
+  margin-top: 3px;
+  cursor: pointer;
+}
+.option-toggle strong {
+  font-weight: 600;
+  font-size: 13px;
+}
+.option-toggle .opt-desc {
+  display: block;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--grey);
+  margin-top: 2px;
+}
+.grade-select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.grade-select-wrap select {
+  padding: 4px 8px;
+  border: 1px solid var(--border-strong);
+  background: var(--shade-1);
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.footer-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* ---------- MINI STEPPER (in import options) ---------- */
+.levels-count-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.mini-stepper {
+  display: flex;
+  align-items: center;
+  border: 2px solid var(--ink);
+  background: var(--shade-1);
+}
+.mini-step-btn {
+  width: 28px;
+  height: 28px;
+  background: var(--shade-1);
+  border: none;
+  cursor: pointer;
+  font-family: 'Fraunces', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  transition: background 100ms;
+}
+.mini-step-btn:hover { background: var(--ink); color: var(--paper); }
+.mini-step-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.mini-step-btn:disabled:hover { background: var(--shade-1); color: var(--ink); }
+.mini-step-val {
+  min-width: 32px;
+  text-align: center;
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 15px;
+  background: var(--paper);
+  border-left: 2px solid var(--ink);
+  border-right: 2px solid var(--ink);
+  padding: 4px 0;
+}
+
+/* ---------- REVIEW MODAL ---------- */
+.review-modal {
+  max-width: 760px;
+  max-height: 92vh;
+}
+.bulk-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--paper-2);
+  border-left: 3px solid var(--gold);
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.bulk-label {
+  font-family: 'Inter Tight';
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--grey);
+}
+.bulk-btn {
+  font-family: 'Inter Tight';
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 6px 12px;
+  background: var(--shade-1);
+  border: 1px solid var(--border-strong);
+  color: var(--ink);
+  cursor: pointer;
+}
+.bulk-btn:hover {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.review-list {
+  max-height: 50vh;
+  overflow-y: auto;
+  border: 1px solid var(--border-strong);
+  background: var(--shade-1);
+  margin-bottom: 12px;
+}
+.review-row {
+  display: grid;
+  grid-template-columns: 24px 1fr auto auto;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.review-row:last-child { border-bottom: none; }
+.review-row:nth-child(even) { background: var(--paper-2); }
+.review-num {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--grey-light);
+  text-align: right;
+}
+.review-name-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.review-name {
+  font-family: 'Inter Tight';
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.review-note {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 11px;
+  color: var(--grey);
+}
+.review-levels-summary {
+  font-family: 'Inter Tight';
+  font-size: 12px;
+  color: var(--grey);
+  letter-spacing: 0.04em;
+  min-width: 80px;
+  text-align: right;
+}
+.review-levels-summary strong {
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 13px;
+}
+.review-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.customize-btn {
+  font-family: 'Inter Tight';
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--grey);
+  cursor: pointer;
+}
+.customize-btn:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.customize-btn.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: var(--paper);
+}
+
+.review-customize-row {
+  grid-column: 1 / -1;
+  padding: 12px 14px 14px 50px;
+  background: var(--paper-2);
+  border-top: 1px dashed var(--border-strong);
+  display: none;
+}
+.review-row.is-customizing .review-customize-row { display: block; }
+.review-row.is-customizing { background: var(--paper-2); }
+.customize-hint {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 11px;
+  color: var(--grey);
+  margin-bottom: 8px;
+}
+.level-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.level-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-family: 'Inter Tight';
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background: var(--shade-1);
+  border: 1px solid var(--border-strong);
+  color: var(--ink);
+  cursor: pointer;
+  user-select: none;
+}
+.level-chip:hover { border-color: var(--ink); }
+.level-chip.selected {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: var(--paper);
+}
+.level-chip.suggested {
+  font-style: italic;
+}
+.level-chip-label {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.review-summary {
+  padding: 12px 14px;
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Inter Tight';
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+.review-summary strong {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 18px;
+  color: var(--paper);
+}
+
+/* ---------- LEGEND ---------- */
+.legend {
+  display: flex; gap: 24px; margin: 16px 0 24px;
+  font-size: 11px;
+  font-family: 'Inter Tight';
+  color: var(--grey);
+  letter-spacing: 0.04em;
+}
+.legend-swatch { display: inline-block; width: 14px; height: 14px; border: 1px solid var(--border-strong); margin-right: 6px; vertical-align: middle; }
+.swatch-bas1 { background: var(--shade-1); }
+.swatch-bas2 { background: var(--bas2-tint); }
+
+.quick-actions {
+  display: flex; gap: 8px; margin-bottom: 12px;
+}
+.quick-btn {
+  font-family: 'Inter Tight';
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 8px 14px;
+  background: var(--paper);
+  border: 1px solid var(--border-strong);
+  cursor: pointer;
+  color: var(--ink);
+}
+.quick-btn:hover { background: var(--ink); color: var(--paper); }
+.quick-btn.accent {
+  background: var(--navy);
+  color: var(--paper);
+  border-color: var(--navy);
+}
+.quick-btn.accent:hover { background: var(--navy-deep); border-color: var(--navy-deep); }
+
+/* ---------- COLUMN HEADER ---------- */
+.col-header {
+  display: grid;
+  grid-template-columns: 70px 1fr 1fr 130px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.col-header > div { padding: 10px 16px; border-right: 1px solid var(--border-strong); }
+.col-header > div:last-child { border-right: none; }
+
+/* ---------- FOOTER ---------- */
+.footer {
+  margin: 60px 0 100px;
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+  font-size: 11px;
+  color: var(--grey);
+  font-family: 'Inter Tight';
+  letter-spacing: 0.04em;
+}
+.footer em { font-family: 'Fraunces', serif; }
+
+/* responsive */
+@media (max-width: 720px) {
+  .container { padding: 0 16px; }
+  .masthead { padding: 20px 16px; }
+  .level-row, .col-header { grid-template-columns: 50px 1fr 110px; }
+  .col-header > div:nth-child(3), .level-row > div:nth-child(3) { display: none; }
+  .level-row > div:nth-child(2) { padding: 12px 10px; }
+  .students-grid { grid-template-columns: 1fr; }
+  .bar { padding: 12px 16px; flex-wrap: wrap; }
+  .summary { gap: 16px; flex-wrap: wrap; }
+  .cell-level { font-size: 24px; }
+  .book-title { font-size: 14px; }
+}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-top">
+    <span>Vol. III &nbsp;·&nbsp; Benchmark Assessment System</span>
+    <span class="ed">★ Third Edition ★</span>
+    <span>For teachers</span>
+  </div>
+  <h1>The F<span class="amp">&</span>P Packet Builder</h1>
+  <p class="tagline">Select the levels you need, set the quantities, optionally name students — get a printable PDF packet with dividers, ready for the teacher's lounge printer.</p>
+</div>
+
+<div class="container">
+
+  <div class="section-title">
+    <span class="num">§ 1</span>
+    Select your forms
+  </div>
+  <p class="section-sub">Click the &minus; / + buttons to set copies. Each copy includes a fiction form, a non-fiction form, or both — your choice.</p>
+
+  <div class="legend">
+    <span><span class="legend-swatch swatch-bas1"></span> BAS 1 (K–2 kit, Levels A–N)</span>
+    <span><span class="legend-swatch swatch-bas2"></span> BAS 2 (3–8 kit, Levels L–Z)</span>
+  </div>
+
+  <div class="quick-actions">
+    <button class="quick-btn accent" onclick="openImportModal()">+ Quick add from list</button>
+    <button class="quick-btn" onclick="resetAll()">Reset all</button>
+  </div>
+
+  <div class="col-header">
+    <div>Lvl</div>
+    <div>Fiction</div>
+    <div>Non-fiction</div>
+    <div style="text-align:center">Copies</div>
+  </div>
+  <div class="levels" id="levels"></div>
+
+  <div class="footer">
+    Forms hosted by <em>eps.openclass.com</em> (official Pearson/Heinemann 3rd Edition portal). © 2017, 2011, 2008 Fountas & Pinnell. &nbsp;·&nbsp; Built by K. McMahon.
+  </div>
+</div>
+
+<div class="bar">
+  <div class="summary">
+    <div class="summary-stat"><span class="num" id="stat-sets">0</span><span class="label">Form sets</span></div>
+    <div class="summary-stat"><span class="num" id="stat-forms">0</span><span class="label">Individual forms</span></div>
+    <div class="summary-stat"><span class="num" id="stat-pages">0</span><span class="label">Approx. pages</span></div>
+  </div>
+  <div class="actions">
+    <button class="btn primary" id="build-btn" onclick="openOrgModal()" disabled>Build Packet PDF</button>
+  </div>
+</div>
+
+<div class="status-overlay" id="status">
+  <div class="status-card">
+    <h2 id="status-title">Building your packet…</h2>
+    <p id="status-msg">Downloading forms and stitching them together.</p>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <p class="status-detail" id="status-detail">Initializing…</p>
+  </div>
+</div>
+
+<div class="org-modal-overlay" id="org-modal">
+  <div class="org-modal">
+    <div class="modal-label">One last step</div>
+    <h2>How should we organize it?</h2>
+    <p class="modal-desc">Pick how forms should be grouped in your PDF.</p>
+    <div class="org-choice-list">
+      <button class="org-choice" data-org="level">
+        <span class="org-choice-title">Organize by Level</span>
+        <span class="org-choice-sub">All Level B copies together, then Level C, then Level H, etc.</span>
+      </button>
+      <button class="org-choice" data-org="student">
+        <span class="org-choice-title">Organize by Student</span>
+        <span class="org-choice-sub">Each named student gets their own section with all their forms grouped together.</span>
+      </button>
+    </div>
+    <div class="org-modal-footer">
+      <button class="modal-btn" onclick="closeOrgModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="org-modal-overlay" id="import-modal-overlay">
+  <div class="import-modal">
+    <div class="modal-label">Roster import</div>
+    <h2>Quick add students</h2>
+    <p class="modal-desc">Paste your roster — one student per line. Works great with Excel: just select your Name + Level columns and paste. Optional 3rd column for notes.</p>
+
+    <div class="import-format">Examples (any of these work):
+Jaden&#9;H
+Itzael&#9;B&#9;retest
+Davari, O, IEP
+Noah - I</div>
+
+    <div class="import-options">
+      <label class="option-toggle">
+        <input type="checkbox" id="opt-advance" checked>
+        <div>
+          <strong>Advance to next level</strong>
+          <span class="opt-desc">If a student is at "E", they'll be tested at "F". Standard for F&P testing.</span>
+        </div>
+      </label>
+
+      <div class="option-toggle">
+        <div class="levels-count-control">
+          <strong>Levels per student:</strong>
+          <div class="mini-stepper">
+            <button type="button" class="mini-step-btn" data-target="opt-levels" data-act="-">−</button>
+            <span class="mini-step-val" id="opt-levels-display">1</span>
+            <button type="button" class="mini-step-btn" data-target="opt-levels" data-act="+">+</button>
+          </div>
+          <input type="hidden" id="opt-levels" value="1">
+        </div>
+        <span class="opt-desc">Default forms per student. e.g. "2" gives Level F AND G to a student at E. You can fine-tune individuals on the next step.</span>
+      </div>
+
+      <label class="option-toggle">
+        <span class="grade-select-wrap">
+          <strong>Grade band:</strong>
+          <select id="opt-grade">
+            <option value="k2" selected>K–2 (use BAS 1)</option>
+            <option value="35">3–5 (use BAS 2 for L–N)</option>
+          </select>
+        </span>
+        <span class="opt-desc">For Levels L, M, N — determines which kit to use. K–2 uses the early-reader books, 3–5 uses the older-reader books.</span>
+      </label>
+    </div>
+
+    <div class="import-mode-toggle">
+      <label><input type="radio" name="import-mode" value="add" checked> Add to current selections</label>
+      <label><input type="radio" name="import-mode" value="replace"> Replace current selections</label>
+    </div>
+
+    <textarea class="import-textarea" id="import-text" placeholder="Paste your student list here, one per line...&#10;&#10;Tip: copy two columns directly from Excel (Name + Level) and paste."
+              oninput="updateImportPreview()"></textarea>
+
+    <div class="import-preview" id="import-preview" style="display:none;"></div>
+
+    <div class="import-modal-footer">
+      <button class="modal-btn" onclick="closeImportModal()">Cancel</button>
+      <div class="footer-actions">
+        <button class="modal-btn primary" id="import-apply" onclick="applyImport()" disabled>Review &amp; Continue →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="org-modal-overlay" id="review-modal-overlay">
+  <div class="import-modal review-modal">
+    <div class="modal-label">Step 2 of 2 — Review roster</div>
+    <h2>Confirm what each student gets</h2>
+    <p class="modal-desc">Quick stepper sets how many forms per student. Click "Customize" on any row to pick specific levels instead.</p>
+
+    <div class="bulk-controls">
+      <span class="bulk-label">Set everyone to:</span>
+      <button type="button" class="bulk-btn" onclick="bulkSetLevelCount(1)">1 level each</button>
+      <button type="button" class="bulk-btn" onclick="bulkSetLevelCount(2)">2 levels each</button>
+      <button type="button" class="bulk-btn" onclick="bulkSetLevelCount(3)">3 levels each</button>
+    </div>
+
+    <div class="review-list" id="review-list">
+      <!-- populated dynamically -->
+    </div>
+
+    <div class="review-summary" id="review-summary">
+      <!-- populated dynamically -->
+    </div>
+
+    <div class="import-modal-footer">
+      <button class="modal-btn" onclick="cancelReview()">← Back</button>
+      <div class="footer-actions">
+        <button class="modal-btn primary" onclick="confirmReview()">Continue to Build →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const BASE = "https://eps.openclass.com/pulse-sa/api/item/b9e940e3-1888-4dfb-bc56-9bee34b26fb6/1/file";
+
+// Complete A-Z catalog. system: 1 = BAS1 (K-2), 2 = BAS2 (3-8). L/M/N appear in both.
+const CATALOG = [
+  { lvl: "A",       sys: 1, fic: { t: "Best Friends",                  f: "bas1_p1_rf.pdf" },   nf: { t: "At the Park",                       f: "bas1_p4_rf.pdf" } },
+  { lvl: "B",       sys: 1, fic: { t: "My Little Dog",                 f: "bas1_p7_rf.pdf" },   nf: { t: "Playing",                           f: "bas1_p10_rf.pdf" } },
+  { lvl: "C",       sys: 1, fic: { t: "Socks",                         f: "bas1_p13_rf.pdf" },  nf: { t: "Shopping",                          f: "bas1_p17_rf.pdf" } },
+  { lvl: "D",       sys: 1, fic: { t: "The Nice Little House",         f: "bas1_p22_rf.pdf" },  nf: { t: "Our Teacher, Mr. Brown",            f: "bas1_p27_rf.pdf" } },
+  { lvl: "E",       sys: 1, fic: { t: "The Loose Tooth",               f: "bas1_p32_rf.pdf" },  nf: { t: "The Zoo",                           f: "bas1_p38_rf.pdf" } },
+  { lvl: "F",       sys: 1, fic: { t: "Anna's New Glasses",            f: "bas1_p43_rf.pdf" },  nf: { t: "From Nest to Bird",                 f: "bas1_p49_rf.pdf" } },
+  { lvl: "G",       sys: 1, fic: { t: "Bedtime for Nick",              f: "bas1_p54_rf.pdf" },  nf: { t: "Bubbles",                           f: "bas1_p60_rf.pdf" } },
+  { lvl: "H",       sys: 1, fic: { t: "The Sleepover Party",           f: "bas1_p65_rf.pdf" },  nf: { t: "Trucks",                            f: "bas1_p72_rf.pdf" } },
+  { lvl: "I",       sys: 1, fic: { t: "The Best Cat",                  f: "bas1_p77_rf.pdf" },  nf: { t: "All About Koalas",                  f: "bas1_p83_rf.pdf" } },
+  { lvl: "J",       sys: 1, fic: { t: "Our New Neighbors",             f: "bas1_p89_rf.pdf" },  nf: { t: "More Than a Pet",                   f: "bas1_p95_rf.pdf" } },
+  { lvl: "K",       sys: 1, fic: { t: "Edwin's Haircut",               f: "bas1_p101_rf.pdf" }, nf: { t: "Surprising Animal Senses",          f: "bas1_p106_rf.pdf" } },
+  { lvl: "L",       sys: 1, fic: { t: "Dog Stories",                   f: "bas1_p112_rf.pdf" }, nf: { t: "Giants of the Sea",                 f: "bas1_p118_rf.pdf" } },
+  { lvl: "M",       sys: 1, fic: { t: "The Thing About Nathan",        f: "bas1_p124_rf.pdf" }, nf: { t: "The Life of a Monarch Butterfly",   f: "bas1_p130_rf.pdf" } },
+  { lvl: "N",       sys: 1, fic: { t: "The Big Snow",                  f: "bas1_p136_rf.pdf" }, nf: { t: "Exploring Caves",                   f: "bas1_p142_rf.pdf" } },
+  { lvl: "L (BAS2)",sys: 2, fic: { t: "Ernie Learns",                  f: "bas2_p1_rf.pdf" },   nf: { t: "Hang On, Baby Monkey",              f: "bas2_p7_rf.pdf" } },
+  { lvl: "M (BAS2)",sys: 2, fic: { t: "Saving Up",                     f: "bas2_p14_rf.pdf" },  nf: { t: "City Hawks",                        f: "bas2_p20_rf.pdf" } },
+  { lvl: "N (BAS2)",sys: 2, fic: { t: "Vanessa's Butterfly",           f: "bas2_p26_rf.pdf" },  nf: { t: "Dogs at Work",                      f: "bas2_p32_rf.pdf" } },
+  { lvl: "O",       sys: 2, fic: { t: "The New Girl",                  f: "bas2_p38_rf.pdf" },  nf: { t: "Snake Myths",                       f: "bas2_p44_rf.pdf" } },
+  { lvl: "P",       sys: 2, fic: { t: "Plenty of Pets",                f: "bas2_p50_rf.pdf" },  nf: { t: "Animal Instincts",                  f: "bas2_p56_rf.pdf" } },
+  { lvl: "Q",       sys: 2, fic: { t: "A Secret Home",                 f: "bas2_p62_rf.pdf" },  nf: { t: "Not Too Cold for a Polar Bear",     f: "bas2_p68_rf.pdf" } },
+  { lvl: "R",       sys: 2, fic: { t: "The Election",                  f: "bas2_p74_rf.pdf" },  nf: { t: "Fishing Smarts",                    f: "bas2_p80_rf.pdf" } },
+  { lvl: "S",       sys: 2, fic: { t: "Could Be Worse",                f: "bas2_p86_rf.pdf" },  nf: { t: "Amazing Animal Adaptations",        f: "bas2_p92_rf.pdf" } },
+  { lvl: "T",       sys: 2, fic: { t: "“Get a Horse!”",                f: "bas2_p98_rf.pdf" },  nf: { t: "Why Do Wolves Howl?",               f: "bas2_p103_rf.pdf" } },
+  { lvl: "U",       sys: 2, fic: { t: "Canyon Mystery",                f: "bas2_p109_rf.pdf" }, nf: { t: "Earthquakes",                       f: "bas2_p114_rf.pdf" } },
+  { lvl: "V",       sys: 2, fic: { t: "A Call for Change",             f: "bas2_p119_rf.pdf" }, nf: { t: "Tsunamis: Mighty Ocean Waves",      f: "bas2_p124_rf.pdf" } },
+  { lvl: "W",       sys: 2, fic: { t: "How I Spent My Summer Holiday", f: "bas2_p129_rf.pdf" }, nf: { t: "Obituary: Coretta Scott King",      f: "bas2_p134_rf.pdf" } },
+  { lvl: "X",       sys: 2, fic: { t: "A Weighty Decision",            f: "bas2_p139_rf.pdf" }, nf: { t: "The Internet: Getting Connected",   f: "bas2_p144_rf.pdf" } },
+  { lvl: "Y",       sys: 2, fic: { t: "Saying Goodbye",                f: "bas2_p149_rf.pdf" }, nf: { t: "The International Space Station",   f: "bas2_p154_rf.pdf" } },
+  { lvl: "Z",       sys: 2, fic: { t: "Surviving the Blitz",           f: "bas2_p159_rf.pdf" }, nf: { t: "The Train at the Top of the World", f: "bas2_p164_rf.pdf" } },
+];
+
+// State: keyed by level index → { copies, includeFic, includeNf, students[], notes[] }
+const state = CATALOG.map(() => ({ copies: 0, includeFic: true, includeNf: true, students: [], notes: [] }));
+
+// Global packet settings
+let orgMode = 'level'; // 'level' or 'student'
+
+// PDF cache so users can re-build without re-downloading
+const pdfCache = new Map();
+
+// ---------- LOCAL STORAGE PERSISTENCE ----------
+const STORAGE_KEY = 'fp_packet_builder_v2_1';
+
+function saveToLocal() {
+  try {
+    const payload = state.map(s => ({
+      c: s.copies,
+      f: s.includeFic,
+      n: s.includeNf,
+      s: s.students || [],
+      no: s.notes || [],
+    }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ts: Date.now(), state: payload }));
+  } catch (e) {
+    // localStorage might be disabled or full — silent fail, app still works
+    console.warn('Could not save to localStorage:', e);
+  }
+}
+
+function loadFromLocal() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw);
+    // Validate structure before applying
+    if (!parsed || !Array.isArray(parsed.state)) {
+      clearLocal();
+      return false;
+    }
+    if (parsed.state.length !== state.length) {
+      // Catalog size changed — old data is incompatible
+      clearLocal();
+      return false;
+    }
+    parsed.state.forEach((s, i) => {
+      if (!s || typeof s !== 'object') return;
+      state[i].copies = Math.max(0, Math.min(20, parseInt(s.c) || 0));
+      state[i].includeFic = s.f !== false;
+      state[i].includeNf = s.n !== false;
+      state[i].students = Array.isArray(s.s) ? s.s.map(x => String(x || '')) : [];
+      state[i].notes = Array.isArray(s.no) ? s.no.map(x => String(x || '')) : [];
+      // Ensure arrays match copies length
+      while (state[i].students.length < state[i].copies) state[i].students.push('');
+      while (state[i].notes.length < state[i].copies) state[i].notes.push('');
+    });
+    return true;
+  } catch (e) {
+    console.warn('Could not load from localStorage, clearing:', e);
+    clearLocal();
+    return false;
+  }
+}
+
+function clearLocal() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+}
+
+// ---------- RENDER ----------
+function render() {
+  const root = document.getElementById('levels');
+  if (!root) return;
+  root.innerHTML = '';
+  CATALOG.forEach((row, idx) => {
+    // Defensive: ensure state[idx] exists and has all required fields
+    if (!state[idx]) {
+      state[idx] = { copies: 0, includeFic: true, includeNf: true, students: [], notes: [] };
+    }
+    const s = state[idx];
+    if (!Array.isArray(s.students)) s.students = [];
+    if (!Array.isArray(s.notes)) s.notes = [];
+
+    const div = document.createElement('div');
+    div.className = `level-row ${row.sys === 2 ? 'bas2' : ''} ${s.copies > 0 ? 'active' : ''} ${s.copies > 0 ? 'has-students' : ''}`;
+
+    div.innerHTML = `
+      <div class="cell-level">${row.lvl.split(' ')[0]}</div>
+      <div>
+        <div class="book-genre">Fiction</div>
+        <div class="book-title">${escapeHTML(row.fic.t)}</div>
+        <label class="book-toggle">
+          <input type="checkbox" data-idx="${idx}" data-kind="fic" ${s.includeFic ? 'checked' : ''}>
+          Include in packet
+        </label>
+      </div>
+      <div>
+        <div class="book-genre">Non-fiction</div>
+        <div class="book-title">${escapeHTML(row.nf.t)}</div>
+        <label class="book-toggle">
+          <input type="checkbox" data-idx="${idx}" data-kind="nf" ${s.includeNf ? 'checked' : ''}>
+          Include in packet
+        </label>
+      </div>
+      <div class="cell-qty">
+        <span class="qty-label">Copies</span>
+        <div class="qty-input">
+          <button class="qty-btn" data-idx="${idx}" data-act="-" aria-label="Decrease copies for Level ${row.lvl}">−</button>
+          <input class="qty-display" type="number" min="0" max="20" value="${s.copies}" data-idx="${idx}" data-act="set" aria-label="Number of copies for Level ${row.lvl}">
+          <button class="qty-btn" data-idx="${idx}" data-act="+" aria-label="Increase copies for Level ${row.lvl}">+</button>
+        </div>
+      </div>
+      <div class="students-row">
+        <div class="students-header">
+          <span>Roster <span class="hint">(optional — names print large on each form's divider, notes print smaller below)</span></span>
+          <span>${s.copies} cop${s.copies === 1 ? 'y' : 'ies'}</span>
+        </div>
+        <div class="students-grid">
+          ${Array.from({ length: s.copies }).map((_, i) => `
+            <div class="student-input-wrap">
+              <span class="student-num">${i + 1}</span>
+              <div class="student-field">
+                <span class="field-label">Student name</span>
+                <input class="student-input" placeholder="e.g. Jaden" data-idx="${idx}" data-student="${i}" value="${escapeHTML(s.students[i] || '')}">
+              </div>
+              <div class="student-field note-field">
+                <span class="field-label">Note (optional)</span>
+                <input class="student-note" placeholder="e.g. retest" data-idx="${idx}" data-note="${i}" value="${escapeHTML(s.notes[i] || '')}">
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    root.appendChild(div);
+  });
+  wireEvents();
+  updateSummary();
+}
+
+function escapeHTML(s) { return (s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
+function wireEvents() {
+  document.querySelectorAll('.qty-btn').forEach(b => b.onclick = e => {
+    const idx = +e.target.dataset.idx;
+    const act = e.target.dataset.act;
+    let v = state[idx].copies;
+    v = act === '+' ? Math.min(20, v + 1) : Math.max(0, v - 1);
+    setCopies(idx, v);
+  });
+  document.querySelectorAll('.qty-display').forEach(inp => {
+    inp.onchange = e => {
+      const idx = +e.target.dataset.idx;
+      const v = Math.max(0, Math.min(20, parseInt(e.target.value) || 0));
+      setCopies(idx, v);
+    };
+    // Live clamp while typing — prevents 999 from flashing visible
+    inp.oninput = e => {
+      const v = parseInt(e.target.value);
+      if (!isNaN(v) && (v < 0 || v > 20)) {
+        e.target.value = Math.max(0, Math.min(20, v));
+      }
+    };
+  });
+  document.querySelectorAll('.book-toggle input').forEach(cb => {
+    cb.onchange = e => {
+      const idx = +e.target.dataset.idx;
+      const kind = e.target.dataset.kind;
+      if (kind === 'fic') state[idx].includeFic = e.target.checked;
+      else state[idx].includeNf = e.target.checked;
+      updateSummary();
+      saveToLocal();
+    };
+  });
+  document.querySelectorAll('.student-input').forEach(inp => {
+    inp.oninput = e => {
+      const idx = +e.target.dataset.idx;
+      const sidx = +e.target.dataset.student;
+      state[idx].students[sidx] = e.target.value;
+      saveToLocalDebounced();
+    };
+  });
+  document.querySelectorAll('.student-note').forEach(inp => {
+    inp.oninput = e => {
+      const idx = +e.target.dataset.idx;
+      const nidx = +e.target.dataset.note;
+      state[idx].notes[nidx] = e.target.value;
+      saveToLocalDebounced();
+    };
+  });
+}
+
+// Debounced save (avoid hitting localStorage on every keystroke)
+let saveTimeout = null;
+function saveToLocalDebounced() {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(saveToLocal, 500);
+}
+
+function setCopies(idx, v) {
+  state[idx].copies = v;
+  // Keep students/notes arrays in sync with copies length
+  while (state[idx].students.length < v) state[idx].students.push('');
+  while (state[idx].notes.length < v) state[idx].notes.push('');
+  if (state[idx].students.length > v) state[idx].students.length = v;
+  if (state[idx].notes.length > v) state[idx].notes.length = v;
+  render();
+  saveToLocal();
+}
+
+function resetAll() {
+  if (!confirm('Reset all selections?')) return;
+  state.forEach(s => { s.copies = 0; s.includeFic = true; s.includeNf = true; s.students = []; s.notes = []; });
+  render();
+  saveToLocal();
+}
+
+function updateSummary() {
+  let sets = 0, forms = 0, pages = 2; // cover + TOC
+  state.forEach((s, idx) => {
+    if (s.copies === 0) return;
+    sets += s.copies;
+    const perCopy = (s.includeFic ? 1 : 0) + (s.includeNf ? 1 : 0);
+    forms += s.copies * perCopy;
+    // Approx pages: 1 divider + ~4 pages per form
+    pages += s.copies * (1 + perCopy * 4);
+  });
+  document.getElementById('stat-sets').textContent = sets;
+  document.getElementById('stat-forms').textContent = forms;
+  document.getElementById('stat-pages').textContent = `~${pages}`;
+  document.getElementById('build-btn').disabled = forms === 0;
+}
+
+// ---------- PDF BUILDING ----------
+// PDFLib is loaded from CDN; resolve its exports lazily so a CDN failure
+// doesn't crash the entire app on load.
+let PDFDocument, rgb, StandardFonts;
+function ensurePDFLib() {
+  if (PDFDocument) return;
+  if (typeof PDFLib === 'undefined') {
+    throw new Error('PDF library failed to load. Check your internet connection and refresh the page.');
+  }
+  ({ PDFDocument, rgb, StandardFonts } = PDFLib);
+}
+
+function showStatus(title, msg, pct, detail) {
+  document.getElementById('status').classList.add('show');
+  document.getElementById('status-title').textContent = title;
+  document.getElementById('status-msg').textContent = msg;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('status-detail').textContent = detail || '';
+}
+function hideStatus() { document.getElementById('status').classList.remove('show'); }
+
+async function fetchPdf(filename, retries = 2) {
+  if (pdfCache.has(filename)) return pdfCache.get(filename);
+  let lastError;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(`${BASE}/${filename}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const bytes = await res.arrayBuffer();
+      if (bytes.byteLength < 100) throw new Error('Empty response');
+      pdfCache.set(filename, bytes);
+      return bytes;
+    } catch (e) {
+      lastError = e;
+      if (attempt < retries) {
+        // Wait before retrying (exponential-ish backoff)
+        await new Promise(r => setTimeout(r, 400 * (attempt + 1)));
+      }
+    }
+  }
+  throw new Error(`Could not load form "${filename}": ${lastError.message}`);
+}
+
+function classifyError(err) {
+  const msg = (err && err.message) || String(err);
+  if (!navigator.onLine) {
+    return {
+      title: 'No internet connection',
+      hint: 'Connect to Wi-Fi and try again. The forms need to download the first time you build a packet.',
+    };
+  }
+  if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+    return {
+      title: 'Could not reach the form source',
+      hint: 'The Heinemann server may be temporarily unreachable. Try again in a minute, or check if your school network is blocking eps.openclass.com.',
+    };
+  }
+  if (msg.includes('HTTP 404') || msg.includes('HTTP 403')) {
+    return {
+      title: 'A form file is missing',
+      hint: 'One of the forms appears to have moved on the Heinemann server. Please let Mr. McMahon know which level you tried to build.',
+    };
+  }
+  if (msg.includes('HTTP 5')) {
+    return {
+      title: 'Heinemann server error',
+      hint: 'The form server returned an error. Try again in a few minutes.',
+    };
+  }
+  return {
+    title: 'Something went wrong',
+    hint: msg.length < 80 ? msg : 'Refresh the page and try again. If it keeps happening, let Mr. McMahon know.',
+  };
+}
+
+async function drawDivider(pdfDoc, opts) {
+  const page = pdfDoc.addPage([612, 792]); // letter
+  const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const fontItalic = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
+
+  const navy = rgb(0.122, 0.306, 0.475);
+  const grey = rgb(0.35, 0.35, 0.35);
+  const lightGrey = rgb(0.5, 0.5, 0.5);
+  const red = rgb(0.72, 0.20, 0.11);
+
+  // Top navy bar
+  page.drawRectangle({ x: 0, y: 756, width: 612, height: 36, color: navy });
+
+  // Section label
+  if (opts.label) {
+    page.drawText(opts.label, { x: 54, y: 720, size: 11, font: fontBold, color: grey });
+  }
+
+  // Big title
+  let y = 620;
+  for (const line of opts.titleLines) {
+    page.drawText(line, { x: 54, y, size: 30, font: fontBold, color: navy });
+    y -= 38;
+  }
+
+  // Subtitle
+  if (opts.subtitle) {
+    page.drawText(opts.subtitle, { x: 54, y: y - 8, size: 14, font: fontItalic, color: grey });
+    y -= 30;
+  }
+
+  // Optional student name (LARGE if present)
+  if (opts.student) {
+    page.drawText('STUDENT', { x: 54, y: y - 30, size: 10, font: fontBold, color: red });
+    page.drawText(opts.student, { x: 54, y: y - 65, size: 26, font: fontBold, color: navy });
+    if (opts.note) {
+      page.drawText(opts.note, { x: 54, y: y - 92, size: 13, font: fontItalic, color: grey });
+    }
+  }
+
+  // Footer
+  page.drawText('Fountas & Pinnell Benchmark Assessment — Third Edition (© 2017, 2011, 2008)',
+                { x: 54, y: 36, size: 9, font: fontItalic, color: lightGrey });
+}
+
+async function drawCover(pdfDoc, totalSets, totalForms, orgMode) {
+  const page = pdfDoc.addPage([612, 792]);
+  const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const fontItalic = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
+
+  const navy = rgb(0.122, 0.306, 0.475);
+  const grey = rgb(0.35, 0.35, 0.35);
+  const red = rgb(0.72, 0.20, 0.11);
+  const lightGrey = rgb(0.5, 0.5, 0.5);
+
+  page.drawRectangle({ x: 0, y: 756, width: 612, height: 36, color: navy });
+
+  page.drawText('THE F&P PACKET BUILDER', { x: 54, y: 720, size: 11, font: fontBold, color: grey });
+
+  page.drawText('F&P Recording Forms', { x: 54, y: 600, size: 36, font: fontBold, color: navy });
+  page.drawText('Print Packet', { x: 54, y: 555, size: 36, font: fontBold, color: navy });
+
+  const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  page.drawText(`Generated ${date}`, { x: 54, y: 510, size: 14, font: fontItalic, color: grey });
+
+  page.drawText(`${totalSets} form sets   ·   ${totalForms} individual forms`,
+                { x: 54, y: 480, size: 14, font: fontBold, color: red });
+
+  const orgLabel = orgMode === 'student'
+    ? 'Organized by Student'
+    : 'Organized by Level';
+  page.drawText(orgLabel, { x: 54, y: 455, size: 12, font: fontItalic, color: grey });
+
+  page.drawText('Fountas & Pinnell Benchmark Assessment — Third Edition (© 2017, 2011, 2008)',
+                { x: 54, y: 36, size: 9, font: fontItalic, color: lightGrey });
+}
+
+async function drawContents(pdfDoc, sections, orgMode) {
+  const page = pdfDoc.addPage([612, 792]);
+  const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const fontItalic = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
+
+  const navy = rgb(0.122, 0.306, 0.475);
+  const grey = rgb(0.35, 0.35, 0.35);
+  const red = rgb(0.72, 0.20, 0.11);
+  const lightGrey = rgb(0.5, 0.5, 0.5);
+
+  page.drawText('Packet Contents', { x: 54, y: 720, size: 24, font: fontBold, color: navy });
+
+  let y = 685;
+
+  if (orgMode === 'student') {
+    // Build student-grouped contents
+    const studentMap = new Map();
+    const unnamed = [];
+    sections.forEach(sec => {
+      for (let copyN = 1; copyN <= sec.copies; copyN++) {
+        const name = (sec.students[copyN - 1] || '').trim();
+        if (name) {
+          if (!studentMap.has(name)) studentMap.set(name, []);
+          studentMap.get(name).push(sec);
+        } else {
+          unnamed.push(sec);
+        }
+      }
+    });
+    const sortedNames = [...studentMap.keys()].sort((a, b) => a.localeCompare(b));
+
+    for (const name of sortedNames) {
+      if (y < 80) break;
+      const secs = studentMap.get(name);
+      page.drawText(name, { x: 54, y, size: 14, font: fontBold, color: navy });
+      y -= 18;
+      for (const sec of secs) {
+        const parts = [];
+        if (sec.fic) parts.push('fic');
+        if (sec.nf) parts.push('nf');
+        page.drawText(`Level ${sec.level}  (${parts.join(' + ')})`,
+                      { x: 72, y, size: 11, font: fontRegular, color: grey });
+        y -= 15;
+      }
+      y -= 8;
+    }
+
+    if (unnamed.length > 0 && y > 80) {
+      page.drawText('Unassigned copies', { x: 54, y, size: 14, font: fontBold, color: red });
+      y -= 18;
+      const unnamedByLevel = new Map();
+      unnamed.forEach(sec => {
+        unnamedByLevel.set(sec.level, (unnamedByLevel.get(sec.level) || 0) + 1);
+      });
+      for (const [lvl, count] of unnamedByLevel) {
+        if (y < 80) break;
+        page.drawText(`Level ${lvl}  —  ${count} cop${count > 1 ? 'ies' : 'y'}`,
+                      { x: 72, y, size: 11, font: fontRegular, color: grey });
+        y -= 15;
+      }
+    }
+  } else {
+    // ORGANIZE BY LEVEL (original)
+    for (const sec of sections) {
+      if (y < 80) break;
+      page.drawText(`Level ${sec.level}  —  ${sec.copies} cop${sec.copies > 1 ? 'ies' : 'y'}`,
+                    { x: 54, y, size: 14, font: fontBold, color: navy });
+      y -= 18;
+      if (sec.fic) {
+        page.drawText(`Fiction:  "${sec.fic}"`, { x: 72, y, size: 11, font: fontRegular, color: grey });
+        y -= 15;
+      }
+      if (sec.nf) {
+        page.drawText(`Non-fiction:  "${sec.nf}"`, { x: 72, y, size: 11, font: fontRegular, color: grey });
+        y -= 15;
+      }
+      if (sec.students && sec.students.some(s => s && s.trim())) {
+        const named = sec.students.map((s, i) => s && s.trim() ? s.trim() : null).filter(Boolean);
+        if (named.length) {
+          page.drawText(`Students: ${named.join(', ')}`, { x: 72, y, size: 10, font: fontItalic, color: grey });
+          y -= 15;
+        }
+      }
+      y -= 8;
+    }
+  }
+
+  page.drawText('Divider pages mark each section so you can separate them after printing.',
+                { x: 54, y: 36, size: 9, font: fontItalic, color: lightGrey });
+}
+
+// Big title page for a student in "Organize by Student" mode.
+async function drawStudentTitle(pdfDoc, name, copies) {
+  const page = pdfDoc.addPage([612, 792]);
+  const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const fontItalic = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
+
+  const navy = rgb(0.122, 0.306, 0.475);
+  const grey = rgb(0.35, 0.35, 0.35);
+  const red = rgb(0.72, 0.20, 0.11);
+  const lightGrey = rgb(0.5, 0.5, 0.5);
+
+  // Heavy navy bar top
+  page.drawRectangle({ x: 0, y: 720, width: 612, height: 72, color: navy });
+  page.drawText('STUDENT SECTION', { x: 54, y: 748, size: 14, font: fontBold, color: rgb(1, 1, 1) });
+
+  // Big student name
+  page.drawText(name, { x: 54, y: 600, size: 48, font: fontBold, color: navy });
+
+  // Form count
+  const totalForms = copies.reduce((acc, c) => acc + ((c.sec.includeFic ? 1 : 0) + (c.sec.includeNf ? 1 : 0)), 0);
+  page.drawText(`${copies.length} form set${copies.length > 1 ? 's' : ''}  ·  ${totalForms} form${totalForms > 1 ? 's' : ''}`,
+                { x: 54, y: 560, size: 16, font: fontBold, color: red });
+
+  // List of levels for this student
+  let y = 510;
+  page.drawText('Contents:', { x: 54, y, size: 12, font: fontBold, color: grey });
+  y -= 22;
+  for (const { sec, note } of copies) {
+    const parts = [];
+    if (sec.fic) parts.push(`Fiction: "${sec.fic}"`);
+    if (sec.nf) parts.push(`Non-fiction: "${sec.nf}"`);
+    page.drawText(`•  Level ${sec.level}`, { x: 72, y, size: 13, font: fontBold, color: navy });
+    if (note) {
+      page.drawText(`— ${note}`, { x: 72 + 90, y, size: 11, font: fontItalic, color: red });
+    }
+    y -= 16;
+    for (const p of parts) {
+      page.drawText(p, { x: 90, y, size: 11, font: fontRegular, color: grey });
+      y -= 14;
+    }
+    y -= 6;
+    if (y < 80) break;
+  }
+
+  page.drawText('Fountas & Pinnell Benchmark Assessment — Third Edition (© 2017, 2011, 2008)',
+                { x: 54, y: 36, size: 9, font: fontItalic, color: lightGrey });
+}
+
+// Title page that introduces the "unassigned copies" group.
+async function drawUnnamedTitle(pdfDoc, count) {
+  const page = pdfDoc.addPage([612, 792]);
+  const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const fontItalic = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
+
+  const navy = rgb(0.122, 0.306, 0.475);
+  const grey = rgb(0.35, 0.35, 0.35);
+  const red = rgb(0.72, 0.20, 0.11);
+  const lightGrey = rgb(0.5, 0.5, 0.5);
+
+  page.drawRectangle({ x: 0, y: 720, width: 612, height: 72, color: red });
+  page.drawText('UNASSIGNED COPIES', { x: 54, y: 748, size: 14, font: fontBold, color: rgb(1, 1, 1) });
+
+  page.drawText('No Student Assigned', { x: 54, y: 600, size: 42, font: fontBold, color: navy });
+  page.drawText(`${count} cop${count > 1 ? 'ies' : 'y'} — assign later`,
+                { x: 54, y: 560, size: 14, font: fontItalic, color: grey });
+
+  page.drawText('These forms were generated as copies without a student name attached.',
+                { x: 54, y: 500, size: 12, font: fontItalic, color: grey });
+  page.drawText('Hand-label each one as you give it to a student.',
+                { x: 54, y: 482, size: 12, font: fontItalic, color: grey });
+
+  page.drawText('Fountas & Pinnell Benchmark Assessment — Third Edition (© 2017, 2011, 2008)',
+                { x: 54, y: 36, size: 9, font: fontItalic, color: lightGrey });
+}
+
+let isBuilding = false;
+
+async function buildPacket() {
+  if (isBuilding) return;
+  isBuilding = true;
+  try {
+    ensurePDFLib();
+    const merged = await PDFDocument.create();
+
+    // Gather what we need
+    const sections = [];
+    let totalSets = 0, totalForms = 0;
+    state.forEach((s, idx) => {
+      if (s.copies === 0) return;
+      const row = CATALOG[idx];
+      sections.push({
+        idx,
+        level: row.lvl,
+        copies: s.copies,
+        students: s.students.slice(),
+        notes: (s.notes || []).slice(),
+        includeFic: s.includeFic,
+        includeNf: s.includeNf,
+        fic: s.includeFic ? row.fic.t : null,
+        nf: s.includeNf ? row.nf.t : null,
+        ficFile: row.fic.f,
+        nfFile: row.nf.f,
+      });
+      totalSets += s.copies;
+      totalForms += s.copies * ((s.includeFic ? 1 : 0) + (s.includeNf ? 1 : 0));
+    });
+
+    if (totalForms === 0) return;
+
+    // Step 1: download all needed PDFs (deduplicated)
+    const needed = new Set();
+    sections.forEach(s => {
+      if (s.includeFic) needed.add(s.ficFile);
+      if (s.includeNf) needed.add(s.nfFile);
+    });
+    const neededArr = [...needed];
+
+    showStatus('Building your packet…', 'Downloading forms from the official source.', 5, `0 / ${neededArr.length} forms loaded`);
+
+    for (let i = 0; i < neededArr.length; i++) {
+      const fname = neededArr[i];
+      await fetchPdf(fname);
+      const pct = 5 + (i + 1) / neededArr.length * 50;
+      showStatus('Building your packet…', 'Downloading forms from the official source.', pct,
+                 `${i + 1} / ${neededArr.length} forms loaded`);
+    }
+
+    // Step 2: build the packet
+    showStatus('Building your packet…', 'Stitching everything together with covers and dividers.', 60, 'Generating cover…');
+    await drawCover(merged, totalSets, totalForms, orgMode);
+    await drawContents(merged, sections, orgMode);
+
+    let formCounter = 0;
+
+    if (orgMode === 'level') {
+      // ORGANIZE BY LEVEL: all copies of each level grouped together (original behavior)
+      for (const sec of sections) {
+        for (let copyN = 1; copyN <= sec.copies; copyN++) {
+          const student = (sec.students[copyN - 1] || '').trim();
+          const note = (sec.notes[copyN - 1] || '').trim();
+          const label = sec.copies > 1
+            ? `COPY ${copyN} OF ${sec.copies}`
+            : `SINGLE COPY`;
+
+          const subtitle = [sec.fic && `"${sec.fic}"`, sec.nf && `"${sec.nf}"`].filter(Boolean).join('  +  ');
+
+          await drawDivider(merged, {
+            label,
+            titleLines: [`Level ${sec.level}`, sec.copies > 1 ? `Copy ${copyN}` : ''],
+            subtitle,
+            student: student || null,
+            note: note || null,
+          });
+
+          if (sec.includeFic) {
+            const bytes = pdfCache.get(sec.ficFile);
+            const src = await PDFDocument.load(bytes);
+            const pages = await merged.copyPages(src, src.getPageIndices());
+            pages.forEach(p => merged.addPage(p));
+            formCounter++;
+          }
+          if (sec.includeNf) {
+            const bytes = pdfCache.get(sec.nfFile);
+            const src = await PDFDocument.load(bytes);
+            const pages = await merged.copyPages(src, src.getPageIndices());
+            pages.forEach(p => merged.addPage(p));
+            formCounter++;
+          }
+
+          const pct = 60 + (formCounter / totalForms) * 35;
+          showStatus('Building your packet…', 'Stitching everything together with covers and dividers.', pct,
+                     `Added ${formCounter} / ${totalForms} forms…`);
+        }
+      }
+    } else {
+      // ORGANIZE BY STUDENT: gather all named-student copies first, then unnamed copies grouped by level
+      const studentGroups = new Map(); // name → [{ sec, copyN, note }]
+      const unnamedCopies = [];        // [{ sec, copyN, note }] (no name given)
+
+      sections.forEach(sec => {
+        for (let copyN = 1; copyN <= sec.copies; copyN++) {
+          const name = (sec.students[copyN - 1] || '').trim();
+          const note = (sec.notes[copyN - 1] || '').trim();
+          if (name) {
+            if (!studentGroups.has(name)) studentGroups.set(name, []);
+            studentGroups.get(name).push({ sec, copyN, note });
+          } else {
+            unnamedCopies.push({ sec, copyN, note });
+          }
+        }
+      });
+
+      // Sort student names alphabetically for predictable order
+      const sortedNames = [...studentGroups.keys()].sort((a, b) => a.localeCompare(b));
+
+      // Render each named student's section
+      for (const name of sortedNames) {
+        const copies = studentGroups.get(name);
+        // Student-level title page
+        await drawStudentTitle(merged, name, copies);
+
+        for (const { sec, copyN, note } of copies) {
+          const subtitle = [sec.fic && `"${sec.fic}"`, sec.nf && `"${sec.nf}"`].filter(Boolean).join('  +  ');
+
+          await drawDivider(merged, {
+            label: `STUDENT: ${name.toUpperCase()}`,
+            titleLines: [`Level ${sec.level}`, ''],
+            subtitle,
+            student: null, // already shown on the student title page
+            note: note || null,
+          });
+
+          if (sec.includeFic) {
+            const bytes = pdfCache.get(sec.ficFile);
+            const src = await PDFDocument.load(bytes);
+            const pages = await merged.copyPages(src, src.getPageIndices());
+            pages.forEach(p => merged.addPage(p));
+            formCounter++;
+          }
+          if (sec.includeNf) {
+            const bytes = pdfCache.get(sec.nfFile);
+            const src = await PDFDocument.load(bytes);
+            const pages = await merged.copyPages(src, src.getPageIndices());
+            pages.forEach(p => merged.addPage(p));
+            formCounter++;
+          }
+
+          const pct = 60 + (formCounter / totalForms) * 35;
+          showStatus('Building your packet…', 'Stitching by student…', pct,
+                     `Added ${formCounter} / ${totalForms} forms…`);
+        }
+      }
+
+      // Then render unnamed copies, grouped by level
+      if (unnamedCopies.length > 0) {
+        await drawUnnamedTitle(merged, unnamedCopies.length);
+
+        // Group unnamed copies by level for cleaner output
+        const unnamedByLevel = new Map();
+        unnamedCopies.forEach(item => {
+          const key = item.sec.level;
+          if (!unnamedByLevel.has(key)) unnamedByLevel.set(key, []);
+          unnamedByLevel.get(key).push(item);
+        });
+
+        for (const [, items] of unnamedByLevel) {
+          for (let i = 0; i < items.length; i++) {
+            const { sec, copyN, note } = items[i];
+            const subtitle = [sec.fic && `"${sec.fic}"`, sec.nf && `"${sec.nf}"`].filter(Boolean).join('  +  ');
+
+            await drawDivider(merged, {
+              label: `UNASSIGNED COPY  ·  ${i + 1} of ${items.length}`,
+              titleLines: [`Level ${sec.level}`, ''],
+              subtitle,
+              student: null,
+              note: note || null,
+            });
+
+            if (sec.includeFic) {
+              const bytes = pdfCache.get(sec.ficFile);
+              const src = await PDFDocument.load(bytes);
+              const pages = await merged.copyPages(src, src.getPageIndices());
+              pages.forEach(p => merged.addPage(p));
+              formCounter++;
+            }
+            if (sec.includeNf) {
+              const bytes = pdfCache.get(sec.nfFile);
+              const src = await PDFDocument.load(bytes);
+              const pages = await merged.copyPages(src, src.getPageIndices());
+              pages.forEach(p => merged.addPage(p));
+              formCounter++;
+            }
+
+            const pct = 60 + (formCounter / totalForms) * 35;
+            showStatus('Building your packet…', 'Adding unassigned copies…', pct,
+                       `Added ${formCounter} / ${totalForms} forms…`);
+          }
+        }
+      }
+    }
+
+    showStatus('Building your packet…', 'Finalizing PDF…', 98, 'Saving file…');
+    const finalBytes = await merged.save();
+    const blob = new Blob([finalBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+
+    const stamp = new Date().toISOString().slice(0, 10);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `FP_Packet_${stamp}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showStatus('Packet ready!', 'Your download should have started. Check your Downloads folder.', 100, `${totalForms} forms in ${merged.getPageCount()} pages`);
+    setTimeout(hideStatus, 2400);
+  } catch (err) {
+    console.error(err);
+    const info = classifyError(err);
+    showStatus(info.title, info.hint, 100, 'Click anywhere outside this box to dismiss.');
+    // Don't auto-hide on error — let user read it
+    document.getElementById('status').onclick = (e) => {
+      if (e.target.id === 'status') {
+        hideStatus();
+        document.getElementById('status').onclick = null;
+      }
+    };
+  } finally {
+    isBuilding = false;
+  }
+}
+
+// ---------- MODAL CONTROL ----------
+function openOrgModal() {
+  document.getElementById('org-modal').classList.add('show');
+  // Focus first choice for keyboard nav
+  setTimeout(() => {
+    const first = document.querySelector('.org-choice');
+    if (first) first.focus();
+  }, 50);
+}
+function closeOrgModal() {
+  document.getElementById('org-modal').classList.remove('show');
+  document.getElementById('build-btn').focus();
+}
+
+function openImportModal() {
+  document.getElementById('import-modal-overlay').classList.add('show');
+  setTimeout(() => document.getElementById('import-text').focus(), 50);
+  // Wire option changes to refresh the preview
+  const optAdvance = document.getElementById('opt-advance');
+  const optGrade = document.getElementById('opt-grade');
+  if (optAdvance && !optAdvance.dataset.wired) {
+    optAdvance.addEventListener('change', updateImportPreview);
+    optAdvance.dataset.wired = '1';
+  }
+  if (optGrade && !optGrade.dataset.wired) {
+    optGrade.addEventListener('change', updateImportPreview);
+    optGrade.dataset.wired = '1';
+  }
+}
+function closeImportModal() {
+  document.getElementById('import-modal-overlay').classList.remove('show');
+  document.getElementById('import-text').value = '';
+  document.getElementById('import-preview').style.display = 'none';
+  document.getElementById('import-apply').disabled = true;
+}
+
+// ---------- ROSTER PARSER ----------
+// Strings that mean "skip this row" (case-insensitive)
+const JUNK_LEVEL_TOKENS = ['discharged', 'class', 'absent', 'n/a', 'na', 'tbd', 'pending', 'moved', 'transferred', '---', '-'];
+
+// Levels in order so we can advance: A → B → ... → Z
+const LEVEL_ORDER = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+
+function isJunkLevel(s) {
+  const lower = (s || '').toLowerCase().trim();
+  if (!lower) return true;
+  return JUNK_LEVEL_TOKENS.some(j => lower === j || lower.startsWith(j + ' ') || lower.startsWith('class ') || lower.startsWith('discharged'));
+}
+
+function advanceLevel(letter) {
+  // "AA" → "A" (pre-A advances to A)
+  if (letter === 'AA') return 'A';
+  const idx = LEVEL_ORDER.indexOf(letter);
+  if (idx === -1) return letter;
+  if (idx >= LEVEL_ORDER.length - 1) return letter; // Z stays Z
+  return LEVEL_ORDER[idx + 1];
+}
+
+// Parses a single line and returns { name, level, note, error, skipped } or null if blank
+function parseRosterLine(line, opts = {}) {
+  let orig = line.trim();
+  if (!orig) return null;
+
+  // Strip wrapping quotes from values that some Excel pastes include
+  // (e.g. "Jaden"\t"H" → Jaden\tH). We do this per-token below too, but a quick
+  // overall normalization keeps things clean.
+  // First, look for the "tab" case: Excel paste is always tab-separated between cells.
+  let tokens;
+  const hasTab = orig.includes('\t');
+
+  if (hasTab) {
+    // Excel paste path: tabs are the ONLY delimiter between cells.
+    // Don't split on commas (they could be inside names like "Smith, John").
+    tokens = orig.split('\t').map(t => {
+      let v = t.trim();
+      // Strip Excel-style wrapping quotes
+      if (v.startsWith('"') && v.endsWith('"') && v.length >= 2) {
+        v = v.slice(1, -1).trim();
+        // Excel doubles internal quotes, so unescape them
+        v = v.replace(/""/g, '"');
+      }
+      return v;
+    }).filter(Boolean);
+  } else {
+    // Manual paste path: split on commas, em/en dashes, " - ", or 2+ spaces
+    tokens = orig
+      .replace(/[\u2013\u2014]/g, ',')
+      .replace(/\s*-\s+|\s+-\s*/g, ',')
+      .replace(/\s{2,}/g, ',')
+      .split(',')
+      .map(t => t.trim())
+      .filter(Boolean);
+  }
+
+  if (tokens.length === 0) return null;
+
+  // For non-tab paths, expand any token that contains a level letter as one of its words
+  // (e.g. "Noah I" → ["Noah", "I"]). For tab-separated, we trust the columns as-is.
+  let expanded;
+  if (hasTab) {
+    expanded = tokens.slice();
+  } else {
+    expanded = [];
+    for (const tok of tokens) {
+      const words = tok.split(/\s+/);
+      const hasLevelWord = words.some(w => /^(AA|[A-Za-z])(\(?bas\s*2\)?)?$/i.test(w));
+      if (hasLevelWord && words.length > 1) {
+        expanded.push(...words);
+      } else {
+        expanded.push(tok);
+      }
+    }
+  }
+
+  if (expanded.length < 2) {
+    return { error: `Need at least a name and a level. Got: "${orig}"`, original: orig };
+  }
+
+  // Find the level token. Accept "AA" (pre-A), single A-Z letters, and BAS2-marked variants.
+  let levelIdx = -1;
+  let rawLevel = null;
+  let isBas2 = false;
+
+  for (let i = 0; i < expanded.length; i++) {
+    const p = expanded[i];
+    if (/^AA$/i.test(p)) {
+      levelIdx = i;
+      rawLevel = 'AA';
+      break;
+    }
+    const m = p.match(/^([A-Za-z])(\s*\(?\s*bas\s*2\s*\)?)?$/i);
+    if (m) {
+      levelIdx = i;
+      rawLevel = m[1].toUpperCase();
+      isBas2 = !!m[2];
+      if (!isBas2 && i + 1 < expanded.length) {
+        const next = expanded[i + 1].match(/^\(?\s*bas\s*2\s*\)?$/i);
+        if (next) {
+          isBas2 = true;
+          expanded.splice(i + 1, 1);
+        }
+      }
+      break;
+    }
+  }
+
+  if (levelIdx === -1) {
+    const allText = expanded.join(' ').toLowerCase();
+    if (JUNK_LEVEL_TOKENS.some(j => allText.includes(j))) {
+      return { skipped: true, original: orig, reason: 'no testable level (e.g. discharged, transferred)' };
+    }
+    return { error: `Couldn't find a level (A–Z) in: "${orig}"`, original: orig };
+  }
+
+  // Name is everything before the level; note is everything after
+  const name = expanded.slice(0, levelIdx).join(hasTab ? ', ' : ' ').trim();
+  const note = expanded.slice(levelIdx + 1).join(hasTab ? '; ' : ' ').trim();
+
+  if (!name) {
+    return { error: `Need a name before the level. Got: "${orig}"`, original: orig };
+  }
+
+  // Determine target level
+  let targetLetter = opts.autoAdvance ? advanceLevel(rawLevel) : (rawLevel === 'AA' ? 'A' : rawLevel);
+
+  let useBas2 = isBas2;
+  if (!useBas2 && opts.gradeBand === '35' && ['L', 'M', 'N'].includes(targetLetter)) {
+    useBas2 = true;
+  }
+
+  const targetLvl = useBas2 ? `${targetLetter} (BAS2)` : targetLetter;
+  const catalogIdx = CATALOG.findIndex(row => row.lvl === targetLvl);
+  if (catalogIdx === -1) {
+    return { error: `Level "${targetLvl}" isn't in the catalog`, original: orig };
+  }
+
+  return {
+    name,
+    originalLevel: rawLevel,
+    level: targetLvl,
+    catalogIdx,
+    note: note || null,
+    advanced: opts.autoAdvance && targetLetter !== (rawLevel === 'AA' ? 'A' : rawLevel),
+    original: orig,
+  };
+}
+
+function getImportOptions() {
+  return {
+    autoAdvance: document.getElementById('opt-advance')?.checked ?? true,
+    gradeBand: document.getElementById('opt-grade')?.value ?? 'k2',
+    levelsPerStudent: parseInt(document.getElementById('opt-levels')?.value) || 1,
+  };
+}
+
+function parseRosterText(text) {
+  const opts = getImportOptions();
+  const lines = text.split('\n');
+  return lines.map((line, i) => {
+    const res = parseRosterLine(line, opts);
+    if (res === null) return null;
+    return { ...res, lineNum: i + 1 };
+  }).filter(Boolean);
+}
+
+function updateImportPreview() {
+  const text = document.getElementById('import-text').value;
+  const parsed = parseRosterText(text);
+  const preview = document.getElementById('import-preview');
+  const applyBtn = document.getElementById('import-apply');
+
+  if (parsed.length === 0) {
+    preview.style.display = 'none';
+    applyBtn.disabled = true;
+    return;
+  }
+
+  preview.style.display = 'block';
+  const okRows = parsed.filter(p => !p.error && !p.skipped);
+  const skippedRows = parsed.filter(p => p.skipped);
+  const errRows = parsed.filter(p => p.error);
+
+  let summary = `${okRows.length} student${okRows.length !== 1 ? 's' : ''} ready`;
+  if (skippedRows.length > 0) summary += `, ${skippedRows.length} skipped`;
+  if (errRows.length > 0) summary += `, ${errRows.length} need${errRows.length === 1 ? 's' : ''} fixing`;
+
+  let html = `<div style="margin-bottom:8px;font-weight:700;color:var(--ink);">${summary}</div>`;
+
+  parsed.forEach(p => {
+    if (p.error) {
+      html += `<div class="preview-row error">
+        <span><span class="badge error">Error</span> Line ${p.lineNum}: ${escapeHTML(p.error)}</span>
+      </div>`;
+    } else if (p.skipped) {
+      html += `<div class="preview-row skipped">
+        <span><span class="badge skipped">Skip</span> Line ${p.lineNum}: ${escapeHTML(p.original)} <em style="color:var(--grey)">— ${escapeHTML(p.reason)}</em></span>
+      </div>`;
+    } else {
+      const advanceStr = p.advanced ? ` <em style="color:var(--gold)">(advanced from ${escapeHTML(p.originalLevel)})</em>` : '';
+      const noteStr = p.note ? ` <em style="color:var(--grey)">— ${escapeHTML(p.note)}</em>` : '';
+      html += `<div class="preview-row ok">
+        <span><span class="badge ok">OK</span> ${escapeHTML(p.name)} → Level ${escapeHTML(p.level)}${advanceStr}${noteStr}</span>
+      </div>`;
+    }
+  });
+
+  preview.innerHTML = html;
+  applyBtn.disabled = okRows.length === 0;
+}
+
+// ---------- REVIEW STATE ----------
+// pendingRoster: array of { name, note, originalLevel, levels: [{ catalogIdx, lvl, isSuggested }] }
+// Each student has a list of levels they'll be tested on. Editable in review modal.
+let pendingRoster = [];
+let pendingMode = 'add'; // 'add' or 'replace'
+
+// Compute the next N levels for a student, accounting for BAS2 routing and Z ceiling
+function computeNextLevels(startLetter, isBas2Marked, opts, count) {
+  // startLetter is the LEVEL they should TEST AT (already advanced if applicable)
+  // We then add (count-1) additional levels above that
+  const result = [];
+  let cur = startLetter;
+  for (let i = 0; i < count; i++) {
+    let useBas2 = isBas2Marked;
+    if (!useBas2 && opts.gradeBand === '35' && ['L', 'M', 'N'].includes(cur)) {
+      useBas2 = true;
+    }
+    const targetLvl = useBas2 ? `${cur} (BAS2)` : cur;
+    const catalogIdx = CATALOG.findIndex(row => row.lvl === targetLvl);
+    if (catalogIdx === -1) break; // shouldn't happen but bail safely
+    result.push({ catalogIdx, lvl: targetLvl, isSuggested: true });
+
+    // Advance to next letter for the next iteration
+    const curIdx = LEVEL_ORDER.indexOf(cur);
+    if (curIdx === -1 || curIdx >= LEVEL_ORDER.length - 1) break;
+    cur = LEVEL_ORDER[curIdx + 1];
+  }
+  return result;
+}
+
+function applyImport() {
+  const text = document.getElementById('import-text').value;
+  const parsed = parseRosterText(text).filter(p => !p.error && !p.skipped);
+  if (parsed.length === 0) return;
+
+  const opts = getImportOptions();
+  pendingMode = document.querySelector('input[name="import-mode"]:checked').value;
+
+  // Build pendingRoster: each student gets `levelsPerStudent` levels by default
+  pendingRoster = parsed.map(p => {
+    // The first level in p is already the "test at" level after auto-advance.
+    // Extract the letter portion (drop " (BAS2)" if present)
+    const startLetter = p.level.replace(/\s*\(BAS2\)\s*$/, '');
+    const isBas2Marked = p.level.includes('(BAS2)');
+    const levels = computeNextLevels(startLetter, isBas2Marked, opts, opts.levelsPerStudent);
+    return {
+      name: p.name,
+      note: p.note || '',
+      originalLevel: p.originalLevel,
+      advanced: p.advanced,
+      startLetter,
+      isBas2Marked,
+      levels,
+    };
+  });
+
+  closeImportModal();
+  openReviewModal();
+}
+
+// ---------- REVIEW MODAL ----------
+function openReviewModal() {
+  document.getElementById('review-modal-overlay').classList.add('show');
+  renderReviewList();
+}
+
+function closeReviewModal() {
+  document.getElementById('review-modal-overlay').classList.remove('show');
+}
+
+function cancelReview() {
+  // Go back to the import modal with the previous text still in place
+  closeReviewModal();
+  // Reopen import modal but keep the text — user can adjust and retry
+  setTimeout(() => {
+    document.getElementById('import-modal-overlay').classList.add('show');
+    updateImportPreview();
+  }, 150);
+}
+
+function renderReviewList() {
+  const root = document.getElementById('review-list');
+  if (!root) return;
+
+  const opts = getImportOptions();
+
+  root.innerHTML = pendingRoster.map((student, i) => {
+    const levelLabels = student.levels.map(l => l.lvl).join(', ');
+    const levelCount = student.levels.length;
+    const noteStr = student.note ? `<div class="review-note">${escapeHTML(student.note)}</div>` : '';
+
+    // Build the customize section with chips for nearby levels
+    // Show 5 levels: current start, +1, +2, +3, +4 (so they can pick any combo)
+    const startIdx = LEVEL_ORDER.indexOf(student.startLetter);
+    const chips = [];
+    for (let offset = 0; offset < 6; offset++) {
+      const letterIdx = startIdx + offset;
+      if (letterIdx < 0 || letterIdx >= LEVEL_ORDER.length) continue;
+      const letter = LEVEL_ORDER[letterIdx];
+      const useBas2 = student.isBas2Marked || (opts.gradeBand === '35' && ['L','M','N'].includes(letter));
+      const lvlName = useBas2 ? `${letter} (BAS2)` : letter;
+      const catalogIdx = CATALOG.findIndex(r => r.lvl === lvlName);
+      if (catalogIdx === -1) continue;
+      const isSelected = student.levels.some(l => l.catalogIdx === catalogIdx);
+      chips.push(`<span class="level-chip ${isSelected ? 'selected' : ''}" data-student-idx="${i}" data-catalog-idx="${catalogIdx}" data-lvl-name="${lvlName}">
+        <span class="level-chip-label">${escapeHTML(lvlName)}</span>
+      </span>`);
+    }
+
+    return `<div class="review-row" data-student-idx="${i}">
+      <span class="review-num">${i + 1}.</span>
+      <div class="review-name-block">
+        <span class="review-name">${escapeHTML(student.name)}</span>
+        ${noteStr}
+      </div>
+      <span class="review-levels-summary">
+        <strong>${levelCount}</strong> form${levelCount !== 1 ? 's' : ''}
+        <div style="font-size: 10px; color: var(--grey-light); margin-top: 2px;">${escapeHTML(levelLabels)}</div>
+      </span>
+      <div class="review-controls">
+        <div class="mini-stepper">
+          <button type="button" class="mini-step-btn" onclick="changeStudentLevelCount(${i}, -1)" ${levelCount <= 1 ? 'disabled' : ''}>−</button>
+          <span class="mini-step-val">${levelCount}</span>
+          <button type="button" class="mini-step-btn" onclick="changeStudentLevelCount(${i}, 1)" ${levelCount >= 3 ? 'disabled' : ''}>+</button>
+        </div>
+        <button type="button" class="customize-btn" onclick="toggleCustomize(${i})">Customize</button>
+      </div>
+      <div class="review-customize-row">
+        <div class="customize-hint">Tap any level to add or remove it from this student's packet:</div>
+        <div class="level-chip-grid">${chips.join('')}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Wire chip clicks
+  root.querySelectorAll('.level-chip').forEach(chip => {
+    chip.onclick = (e) => {
+      const sIdx = +chip.dataset.studentIdx;
+      const cIdx = +chip.dataset.catalogIdx;
+      const lvlName = chip.dataset.lvlName;
+      toggleStudentLevel(sIdx, cIdx, lvlName);
+    };
+  });
+
+  updateReviewSummary();
+}
+
+function changeStudentLevelCount(studentIdx, delta) {
+  const student = pendingRoster[studentIdx];
+  const opts = getImportOptions();
+  const newCount = Math.max(1, Math.min(3, student.levels.length + delta));
+  if (newCount === student.levels.length) return;
+
+  // Regenerate the levels list from the start letter
+  student.levels = computeNextLevels(student.startLetter, student.isBas2Marked, opts, newCount);
+  renderReviewList();
+}
+
+function toggleStudentLevel(studentIdx, catalogIdx, lvlName) {
+  const student = pendingRoster[studentIdx];
+  const existingPos = student.levels.findIndex(l => l.catalogIdx === catalogIdx);
+
+  if (existingPos >= 0) {
+    // Remove — but keep at least 1 level
+    if (student.levels.length <= 1) return;
+    student.levels.splice(existingPos, 1);
+  } else {
+    // Add — but cap at 3 total
+    if (student.levels.length >= 3) return;
+    student.levels.push({ catalogIdx, lvl: lvlName, isSuggested: false });
+    // Sort by catalog order so they appear in level order
+    student.levels.sort((a, b) => a.catalogIdx - b.catalogIdx);
+  }
+
+  // Preserve the "is-customizing" state for this row after re-render
+  const wasCustomizing = document.querySelector(`.review-row[data-student-idx="${studentIdx}"]`)?.classList.contains('is-customizing');
+  renderReviewList();
+  if (wasCustomizing) {
+    document.querySelector(`.review-row[data-student-idx="${studentIdx}"]`)?.classList.add('is-customizing');
+    document.querySelector(`.review-row[data-student-idx="${studentIdx}"] .customize-btn`)?.classList.add('active');
+  }
+}
+
+function toggleCustomize(studentIdx) {
+  const row = document.querySelector(`.review-row[data-student-idx="${studentIdx}"]`);
+  const btn = row?.querySelector('.customize-btn');
+  if (!row || !btn) return;
+  const isOpen = row.classList.toggle('is-customizing');
+  btn.classList.toggle('active', isOpen);
+}
+
+function bulkSetLevelCount(count) {
+  const opts = getImportOptions();
+  pendingRoster.forEach(student => {
+    student.levels = computeNextLevels(student.startLetter, student.isBas2Marked, opts, count);
+  });
+  renderReviewList();
+}
+
+function updateReviewSummary() {
+  const totalForms = pendingRoster.reduce((sum, s) => sum + s.levels.length, 0);
+  const totalStudents = pendingRoster.length;
+  const el = document.getElementById('review-summary');
+  if (el) {
+    el.innerHTML = `
+      <span><strong>${totalStudents}</strong> student${totalStudents !== 1 ? 's' : ''} &nbsp;·&nbsp; <strong>${totalForms}</strong> form set${totalForms !== 1 ? 's' : ''} to generate</span>
+      <span style="opacity:0.7">Each form set = fiction + non-fiction</span>
+    `;
+  }
+}
+
+function confirmReview() {
+  // Apply pendingRoster to state, then proceed to org modal
+  if (pendingMode === 'replace') {
+    state.forEach(s => { s.copies = 0; s.students = []; s.notes = []; });
+  }
+
+  pendingRoster.forEach(student => {
+    student.levels.forEach(level => {
+      const s = state[level.catalogIdx];
+      s.copies = (s.copies || 0) + 1;
+      s.students = s.students || [];
+      s.notes = s.notes || [];
+      s.students.push(student.name);
+      s.notes.push(student.note || '');
+    });
+  });
+
+  closeReviewModal();
+  render();
+  saveToLocal();
+
+  // Open the org modal to continue to build
+  setTimeout(() => openOrgModal(), 200);
+}
+
+// ---------- INIT ----------
+// Restore from local storage on load
+const restored = loadFromLocal();
+
+document.querySelectorAll('.org-choice').forEach(btn => {
+  btn.onclick = () => {
+    orgMode = btn.dataset.org;
+    btn.classList.add('selecting');
+    closeOrgModal();
+    // small delay so the user sees feedback before the build modal opens
+    setTimeout(() => {
+      btn.classList.remove('selecting');
+      buildPacket();
+    }, 200);
+  };
+});
+
+// Click outside modal to close
+document.getElementById('org-modal').addEventListener('click', (e) => {
+  if (e.target.id === 'org-modal') closeOrgModal();
+});
+document.getElementById('import-modal-overlay').addEventListener('click', (e) => {
+  if (e.target.id === 'import-modal-overlay') closeImportModal();
+});
+document.getElementById('review-modal-overlay').addEventListener('click', (e) => {
+  if (e.target.id === 'review-modal-overlay') closeReviewModal();
+});
+
+// Wire the mini-stepper in the import modal
+document.querySelectorAll('.mini-step-btn[data-target="opt-levels"]').forEach(btn => {
+  btn.onclick = () => {
+    const input = document.getElementById('opt-levels');
+    const display = document.getElementById('opt-levels-display');
+    let v = parseInt(input.value) || 1;
+    v = btn.dataset.act === '+' ? Math.min(3, v + 1) : Math.max(1, v - 1);
+    input.value = v;
+    display.textContent = v;
+    // Update disabled states on the stepper buttons
+    document.querySelectorAll('.mini-step-btn[data-target="opt-levels"]').forEach(b => {
+      if (b.dataset.act === '-') b.disabled = v <= 1;
+      if (b.dataset.act === '+') b.disabled = v >= 3;
+    });
+  };
+});
+
+// Escape key closes any open modal
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('review-modal-overlay').classList.contains('show')) closeReviewModal();
+    else if (document.getElementById('org-modal').classList.contains('show')) closeOrgModal();
+    else if (document.getElementById('import-modal-overlay').classList.contains('show')) closeImportModal();
+  }
+});
+
+render();
+
+// Show a brief "restored" hint if we loaded saved data
+if (restored) {
+  const hasSelections = state.some(s => s.copies > 0);
+  if (hasSelections) {
+    setTimeout(() => {
+      const hint = document.createElement('div');
+      hint.style.cssText = `
+        position: fixed; top: 20px; right: 20px; z-index: 300;
+        background: var(--navy); color: var(--paper);
+        padding: 12px 18px; border: 2px solid var(--ink);
+        font-family: 'Inter Tight'; font-size: 12px; letter-spacing: 0.04em;
+        font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      `;
+      hint.textContent = '✓ Restored your last selections';
+      document.body.appendChild(hint);
+      setTimeout(() => hint.style.opacity = '0', 3000);
+      setTimeout(() => hint.remove(), 3500);
+      hint.style.transition = 'opacity 500ms';
+    }, 200);
+  }
+}
+</script>
+</body>
+</html>
